@@ -1,6 +1,6 @@
 {
   "name": "엔트리-kenteken",
-  "version": "1.1",
+  "version": "1.2",
   "manifest_version": 3,
   "description": "자기 자신에게만 보이는 커스텀 배지를 추가해 줍니다",
   "permissions": [
@@ -11,8 +11,11 @@
   },
   "content_scripts": [
     {
-    "matches": ["<all_urls>"],
-    "js": ["content.js"]
+      "matches": [
+        "https://playentry.org/*",
+        "https://space.playentry.org/*"
+      ],
+      "js": ["content.js"]
     }
   ],
   "icons": {
