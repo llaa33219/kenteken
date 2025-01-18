@@ -18,8 +18,6 @@ const svgBgColor = document.getElementById('svgBgColor');
 const svgTextColor = document.getElementById('svgTextColor');
 const svgTextValue = document.getElementById('svgTextValue');
 const svgTextSize  = document.getElementById('svgTextSize');
-
-const generateSvgBtn = document.getElementById('generateSvgBtn');
 const svgPreview = document.getElementById('svgPreview');
 
 const saveBtn = document.getElementById('saveBtn');
@@ -38,6 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderNicknamesUI();
     updateOthersPreview();
+
+    // [수정1] 처음 팝업 열릴 때, 한 번 기본 SVG 프리뷰 업데이트
+    updateSvgPreview();
   });
 });
 
@@ -106,6 +107,13 @@ function addNicknameRow(nickname = "", dataURL = "") {
   const changeBtn = row.querySelector('.changeBtn');
   const removeBtn = row.querySelector('.removeBtn');
 
+  // [추가] "이미지 없음" 버튼 만들기
+  const noImageBtn = document.createElement('button');
+  noImageBtn.textContent = "이미지 없음";
+  noImageBtn.style.marginLeft = "3px"; 
+  noImageBtn.style.width = "130px";
+  row.appendChild(noImageBtn);
+
   // **닉네임 text 입력 변경 시 자동저장
   nickInput.addEventListener('input', () => {
     saveToStorage();
@@ -114,7 +122,7 @@ function addNicknameRow(nickname = "", dataURL = "") {
   // "변경" 버튼 → currentSelectedDataURL을 적용
   changeBtn.addEventListener('click', () => {
     if (!currentSelectedDataURL) {
-      alert("파일 업로드나 SVG 생성으로 이미지를 선택 후 변경하세요.");
+      alert("파일 업로드나 SVG 커스텀으로 이미지를 선택 후 변경하세요.");
       return;
     }
     previewImg.src = currentSelectedDataURL;
@@ -125,6 +133,12 @@ function addNicknameRow(nickname = "", dataURL = "") {
   removeBtn.addEventListener('click', () => {
     row.remove();
     saveToStorage();  // 자동저장
+  });
+
+  // "이미지 없음" 버튼
+  noImageBtn.addEventListener('click', () => {
+    previewImg.src = "";
+    saveToStorage();
   });
 
   // 미리보기 이미지 클릭 → 해당 이미지를 재편집 가능하도록 로드
@@ -158,10 +172,23 @@ function updateOthersPreview() {
 
 othersChangeBtn.addEventListener('click', () => {
   if (!currentSelectedDataURL) {
-    alert("파일 업로드나 SVG 생성으로 이미지를 선택 후 변경하세요.");
+    alert("파일 업로드나 SVG 커스텀으로 이미지를 선택 후 변경하세요.");
     return;
   }
   nicknameImageMap["others"] = currentSelectedDataURL;
+  updateOthersPreview();
+  saveToStorage();  // 자동저장
+});
+
+// [추가] 기타(others)용 "이미지 없음" 버튼도 추가
+const othersClearBtn = document.createElement('button');
+othersClearBtn.textContent = "이미지 없음";
+othersClearBtn.style.marginLeft = "10px";
+othersClearBtn.style.width = "130px";
+othersChangeBtn.insertAdjacentElement('afterend', othersClearBtn);
+
+othersClearBtn.addEventListener('click', () => {
+  nicknameImageMap["others"] = "";
   updateOthersPreview();
   saveToStorage();  // 자동저장
 });
@@ -187,19 +214,20 @@ fileUpload.addEventListener('change', (e) => {
 
 
 /********************************************************
- * SVG 프리셋 → dataURL (SVG 생성)
+ * SVG 프리셋 → dataURL (실시간 생성)
  ********************************************************/
-generateSvgBtn.addEventListener('click', () => {
+function generateSvgDataURL() {
   const bgColor = svgBgColor.value;
   const textColor = svgTextColor.value;
   const textValue = svgTextValue.value || "";
-  
+
   // 글씨 크기 (기본값 22)
   let fontSize = parseInt(svgTextSize.value, 10);
   if (isNaN(fontSize) || fontSize <= 0) {
     fontSize = 22; 
   }
 
+  // 여기서부터 UTF-8로 생성
   const svgTemplate = `
 <svg xmlns="http://www.w3.org/2000/svg" width="45" height="40" viewBox="0 0 45 40">
   <g fill="none" font-family="'Malgun Gothic','Apple SD Gothic Neo',sans-serif">
@@ -224,16 +252,47 @@ generateSvgBtn.addEventListener('click', () => {
   </g>
 </svg>`;
 
-  const blob = new Blob([svgTemplate], { type: "image/svg+xml" });
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    currentSelectedDataURL = ev.target.result; // e.g. "data:image/svg+xml;base64,...."
-    svgPreview.src = currentSelectedDataURL;
+  // Blob 생성 시 charset 명시
+  const blob = new Blob([svgTemplate], { type: "image/svg+xml;charset=utf-8" });
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      resolve(ev.target.result); // data:image/svg+xml;base64,...
+    };
+    reader.readAsDataURL(blob);
+  });
+}
 
-    saveToStorage(); // 자동저장 (SVG 생성 후)
-  };
-  reader.readAsDataURL(blob);
+
+/********************************************************
+ * 실시간 미리보기 업데이트
+ ********************************************************/
+async function updateSvgPreview() {
+  const dataUrl = await generateSvgDataURL();
+  currentSelectedDataURL = dataUrl;
+  svgPreview.src = dataUrl;
+  saveToStorage(); // 변경 시마다 자동 저장
+}
+
+// SVG 입력값(배경색/글자색/글자내용/글자크기)이 바뀔 때마다 자동 호출
+[svgBgColor, svgTextColor, svgTextValue, svgTextSize].forEach(el => {
+  el.addEventListener('input', updateSvgPreview);
 });
+
+
+/********************************************************
+ * Base64 -> UTF-8 디코딩 (한글 깨짐 방지)
+ ********************************************************/
+function decodeBase64ToUTF8(b64Str) {
+  // atob()로 디코딩 → binary → UTF-8로 다시 디코딩
+  const binary = atob(b64Str); 
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  const decoder = new TextDecoder('utf-8');
+  return decoder.decode(bytes);
+}
 
 
 /********************************************************
@@ -248,7 +307,9 @@ function parseSVGandSetFormFields(dataURL) {
 
   try {
     const base64part = dataURL.split(",")[1];
-    const svgString = atob(base64part);
+    // [수정2] UTF-8 디코딩 함수 적용
+    const svgString = decodeBase64ToUTF8(base64part);
+
     const parser = new DOMParser();
     const xmlDoc = parser.parseFromString(svgString, "image/svg+xml");
 
@@ -275,6 +336,10 @@ function parseSVGandSetFormFields(dataURL) {
         svgTextValue.value = textContent.trim();
       }
     }
+
+    // 폼 필드 설정 후 실시간 미리보기 다시 업데이트
+    updateSvgPreview();
+
   } catch (err) {
     console.warn("SVG 파싱 에러:", err);
   }

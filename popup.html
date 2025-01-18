@@ -60,7 +60,7 @@
         transform: translateY(2px);
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
-    #othersChangeBtn, #addNicknameBtn, #generateSvgBtn, #saveBtn {
+    #othersChangeBtn, #addNicknameBtn, #saveBtn {
         width: 150px; /* Fixed width */
     }
     .removeBtn {
@@ -93,18 +93,17 @@
         border: none;
         border-radius: 20px;
         padding: 10px 20px;
-        width: 100px; /* 필요에 따라 고정 너비 */
-        height: 21px; /* 필요에 따라 고정 높이 */
+        width: 100px; 
+        height: 21px; 
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         cursor: pointer;
         transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
         font-weight: bold;
         font-size: 16px;
-        text-align: center; /* 텍스트를 가운데 정렬 */
+        text-align: center;
         margin-right: 3px;
         margin-left: 3px;
     }
-
     .fileUploadLabel:hover {
         background-color: #005BDD;
         transform: translateY(2px);
@@ -118,37 +117,34 @@
       width: 250px;
       margin: 10px;
       font-family: sans-serif;
-      /* 하나의 박스 형태를 위해 details에만 테두리+모서리 */
       border: 1px solid #ccc;
       border-radius: 10px;
-      overflow: hidden; /* 둥근 모서리가 자연스럽게 잘 보이도록 */
+      overflow: hidden;
     }
     summary {
-      /* summary의 배경, 테두리는 details에서 처리하므로 배경만 지정 */
       cursor: pointer;
       padding: 8px 12px;
       margin: 0;
       background-color: #fafafa;
-      border: none;         /* 별도의 border 제거 */
-      list-style: none;     /* 기본 화살표 지우려면 아래와 함께 */
-      outline: none;        /* 클릭 시 파란 아웃라인 제거(취향) */
+      border: none;
+      list-style: none;
+      outline: none;
     }
-    /* 웹킷 계열 브라우저에서 기본 화살표 제거 */
     summary::-webkit-details-marker {
       display: none;
     }
-    /* details가 펼쳐진(open) 상태일 때 summary에 다른 배경색을 줄 수도 있음 */
     details[open] summary {
       background-color: #f3f3f3;
     }
-    /* 펼쳐진 내용 스타일 */
     details p {
       margin: 0;
       padding: 10px 12px;
       background-color: #fff;
-      /* summary와 구분선만 살짝 */
       border-top: 1px solid #ccc;
       line-height: 1.5;
+    }
+    .preview-img[src=""] {
+      visibility: hidden;
     }
   </style>
 </head>
@@ -184,7 +180,6 @@
   <div style="margin-bottom: 10px;">
     <label class="inline-block">
       파일 업로드: 
-        <!-- 실제 파일 업로드 input은 숨기고, label을 버튼처럼 사용 -->
         <input type="file" id="fileUpload" style="display: none;" />
         <label for="fileUpload" class="fileUploadLabel">파일 선택</label>
     </label>
@@ -195,7 +190,7 @@
     <p style="font-size: 20px; font-weight: bold;">배지 커스텀</p>
     <div class="row">
       <label>배경 색: 
-        <input type="color" id="svgBgColor" value="#FFB800"/>
+        <input type="color" id="svgBgColor" value="#000000"/>
       </label>
       <label>글씨 색: 
         <input type="color" id="svgTextColor" value="#ffffff"/>
@@ -203,15 +198,14 @@
     </div>
     <div class="row">
       <label>글씨 내용: 
-        <input type="text" id="svgTextValue" value="S"/>
+        <input type="text" id="svgTextValue" value="K"/>
       </label>
-      <!-- 글씨 크기 입력 (기본 22) -->
       <label>글씨 크기:
         <input type="number" id="svgTextSize" value="22" min="1" max="100"/>
       </label>
     </div>
+    <!-- 기존에 있던 "배지 생성" 버튼 제거  -->
     <div class="row">
-      <button id="generateSvgBtn">배지 생성</button>
       <img id="svgPreview" class="preview-img" alt="svgPreview"/>
     </div>
   </div>
@@ -219,6 +213,7 @@
   <hr/>
   <button id="saveBtn">저장하기</button>
 
+  <!-- 스크립트 연결 -->
   <script src="popup.js"></script>
 </body>
 </html>

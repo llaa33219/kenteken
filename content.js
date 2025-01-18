@@ -95,6 +95,16 @@
     blindSpan.innerText = "닉네임 이미지";
     span.appendChild(blindSpan);
 
+    // ===== [추가 부분] : 이미지 없음이면 style 덮어쓰기 =====
+    if (!imageDataUrl) {
+      span.style.width = "0px";
+      span.style.height = "0px";
+      span.style.marginRight = "0px";
+      span.style.backgroundSize = "0px 0px";
+      span.style.backgroundImage = "none";
+    }
+    // ===== [추가 부분 끝] =====
+
     return span;
   }
 
@@ -102,7 +112,7 @@
    * [1] transformAllProfileLinks
    * 
    * 시나리오:
-   *   - anyImageSpan 없음 -> 
+   *   - anyImageSpan 없음 ->
    *       nickname in map && nickname!='others' => 그 이미지,
    *       else if map['others'] => 그 이미지,
    *   - anyImageSpan 있음 ->
