@@ -1,0 +1,23 @@
+{
+  "name": "엔트리-kenteken",
+  "version": "1.0",
+  "manifest_version": 3,
+  "description": "자기 자신에게만 보이는 커스텀 배지를 추가해 줍니다",
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+    "matches": ["<all_urls>"],
+    "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  }
+}

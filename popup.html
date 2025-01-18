@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>커스텀 배지 설정</title>
+  <style>
+    body {
+      min-width: 300px;
+      margin: 0;
+      padding: 10px;
+      font-family: sans-serif;
+    }
+    .row {
+      display: flex;
+      margin-bottom: 5px;
+      align-items: center;
+    }
+    .row input {
+      margin-right: 5px;
+    }
+    .row button {
+      margin-left: auto;
+    }
+    .inline-block {
+      display: inline-block;
+      margin-right: 5px;
+    }
+    .preview-img {
+      width: 60px;
+      height: 60px;
+      vertical-align: middle;
+      background-color: #ccc;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-right: 3px;
+      margin-left: 3px;
+    }
+    #nicknameContainer > .row {
+      margin-bottom: 8px;
+    }
+    button {
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        width: 100px; /* Fixed width */
+        height: 41px; /* Fixed height */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+        font-weight: bold;
+        font-size: 16px;
+        margin-right: 3px;
+        margin-left: 3px;
+    }
+    button:hover {
+        background-color: #005BDD;
+        transform: translateY(2px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    #othersChangeBtn, #addNicknameBtn, #generateSvgBtn, #saveBtn {
+        width: 150px; /* Fixed width */
+    }
+    .removeBtn {
+        background-color: #aa0000;
+    }
+    .removeBtn:hover {
+        background-color: #6e0000;
+    }
+    .changeBtn {
+        background-color: #00a100;
+    }
+    .changeBtn:hover {
+        background-color: #006e00;
+    }
+    input {
+        width: 120px;
+        height: 30px;
+        border-radius: 5px;
+        border-color: #ccc;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    label {
+        font-size: 14px;
+    }
+    .fileUploadLabel {
+        display: inline-block;
+        background-color: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 20px;
+        padding: 10px 20px;
+        width: 100px; /* 필요에 따라 고정 너비 */
+        height: 21px; /* 필요에 따라 고정 높이 */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.3s ease;
+        font-weight: bold;
+        font-size: 16px;
+        text-align: center; /* 텍스트를 가운데 정렬 */
+        margin-right: 3px;
+        margin-left: 3px;
+    }
+
+    .fileUploadLabel:hover {
+        background-color: #005BDD;
+        transform: translateY(2px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    #svgBgColor, #svgTextColor {
+        height: 35px;
+        width: 65px;
+    }
+    details {
+      width: 250px;
+      margin: 10px;
+      font-family: sans-serif;
+      /* 하나의 박스 형태를 위해 details에만 테두리+모서리 */
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      overflow: hidden; /* 둥근 모서리가 자연스럽게 잘 보이도록 */
+    }
+    summary {
+      /* summary의 배경, 테두리는 details에서 처리하므로 배경만 지정 */
+      cursor: pointer;
+      padding: 8px 12px;
+      margin: 0;
+      background-color: #fafafa;
+      border: none;         /* 별도의 border 제거 */
+      list-style: none;     /* 기본 화살표 지우려면 아래와 함께 */
+      outline: none;        /* 클릭 시 파란 아웃라인 제거(취향) */
+    }
+    /* 웹킷 계열 브라우저에서 기본 화살표 제거 */
+    summary::-webkit-details-marker {
+      display: none;
+    }
+    /* details가 펼쳐진(open) 상태일 때 summary에 다른 배경색을 줄 수도 있음 */
+    details[open] summary {
+      background-color: #f3f3f3;
+    }
+    /* 펼쳐진 내용 스타일 */
+    details p {
+      margin: 0;
+      padding: 10px 12px;
+      background-color: #fff;
+      /* summary와 구분선만 살짝 */
+      border-top: 1px solid #ccc;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <h1 style="font-weight: bold;">닉네임별 배지 설정</h1>
+  <details>
+    <summary>도움말 보기</summary>
+    <p>
+      파일 업로드로 이미지를 선택하거나<br>
+      배지 커스텀으로 배지를 만든 후<br>
+      "변경"을 눌러서 배지 변경, 정하기 가능<br><br>
+      닉네임 옆 배지를 클릭해 불러오기 가능<br><br>
+      기본적으로 자동저장이지만 저장이 걱정된다면
+      아래 저장 버튼을 눌러주세요.
+    </p>
+  </details>
+
+  <!-- 닉네임별 이미지 목록 영역 -->
+  <div id="nicknameContainer"></div>
+  <button id="addNicknameBtn">닉네임 추가</button>
+
+  <hr/>
+
+  <h2>기타 닉네임용 이미지</h2>
+  <div>
+    <img id="othersPreview" class="preview-img" alt="others image preview"/>
+    <button id="othersChangeBtn">이미지 변경</button>
+  </div>
+
+  <hr/>
+
+  <h3>이미지 선택</h3>
+  <div style="margin-bottom: 10px;">
+    <label class="inline-block">
+      파일 업로드: 
+        <!-- 실제 파일 업로드 input은 숨기고, label을 버튼처럼 사용 -->
+        <input type="file" id="fileUpload" style="display: none;" />
+        <label for="fileUpload" class="fileUploadLabel">파일 선택</label>
+    </label>
+  </div>
+
+  <!-- SVG 프리셋 커스텀 영역 -->
+  <div style="border: 1px solid #ccc; padding: 5px; border-radius: 14px; margin-bottom: 10px;">
+    <p style="font-size: 20px; font-weight: bold;">배지 커스텀</p>
+    <div class="row">
+      <label>배경 색: 
+        <input type="color" id="svgBgColor" value="#FFB800"/>
+      </label>
+      <label>글씨 색: 
+        <input type="color" id="svgTextColor" value="#ffffff"/>
+      </label>
+    </div>
+    <div class="row">
+      <label>글씨 내용: 
+        <input type="text" id="svgTextValue" value="S"/>
+      </label>
+      <!-- 글씨 크기 입력 (기본 22) -->
+      <label>글씨 크기:
+        <input type="number" id="svgTextSize" value="22" min="1" max="100"/>
+      </label>
+    </div>
+    <div class="row">
+      <button id="generateSvgBtn">배지 생성</button>
+      <img id="svgPreview" class="preview-img" alt="svgPreview"/>
+    </div>
+  </div>
+
+  <hr/>
+  <button id="saveBtn">저장하기</button>
+
+  <script src="popup.js"></script>
+</body>
+</html>
